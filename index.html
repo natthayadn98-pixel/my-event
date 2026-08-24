@@ -301,19 +301,30 @@
             }
         });
 
-        // 4.2 ตรวจจับจากกล้อง
+       // 4.2 ตรวจจับจากกล้อง (บังคับกล้องหลังเท่านั้น)
         function initCameraScanner() {
-            let html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-                
-            html5QrcodeScanner.render(
+            const html5QrCode = new Html5Qrcode("reader");
+            
+            // ตั้งค่าความไวของกล้อง และขนาดกรอบสแกน
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            // เริ่มเปิดกล้องโดยบังคับใช้กล้องหลัง (environment)
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config,
                 function onScanSuccess(decodedText) {
                     processQRCode(decodedText);
-                }, 
-                function onScanFailure(error) { /* เงียบไว้ */ }
-            );
+                },
+                function onScanFailure(error) { 
+                    // ไม่ต้องทำอะไร ปล่อยให้กล้องค้นหาต่อไป
+                }
+            ).catch(err => {
+                console.error("ไม่สามารถเปิดกล้องได้", err);
+                document.getElementById('result').innerHTML = "❌ ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการเข้าถึงกล้อง";
+                document.getElementById('result').style.backgroundColor = "#ff4d4d";
+                document.getElementById('result').style.color = "white";
+            });
         }
-
         // ดึงโฟกัสกลับมาที่ช่องเครื่องยิงเสมอ
         document.addEventListener('click', function() {
             if (document.getElementById('tab-scanner').classList.contains('active')) {
