@@ -3,118 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Connect - ระบบสแกนเข้างาน</title>
-    <!-- โหลด Fonts และ Libraries -->
+    <title>Party Connect - ระบบต้อนรับหน้างาน</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- โหลดไลบรารีที่จำเป็น -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
         :root {
-            /* โทนสีสดใส */
-            --bg-gradient: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --primary: #FF416C;
-            --text-dark: #333;
+            /* แก้ไข Error CSS ตรงนี้แล้วครับ */
+            --primary: #4A00E0;
         }
 
         body {
-            font-family: 'Prompt', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-dark);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+            color: #333; margin: 0; padding: 0; min-height: 100vh;
         }
 
-        .header {
-            text-align: center;
-            padding: 30px 10px 10px;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
+        .header { text-align: center; padding: 30px 10px 10px; color: white; }
+        .header h1 { margin: 0; font-size: 32px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
 
-        .header h1 { margin: 0; font-size: 32px; }
-
-        /* ระบบ Tabs */
-        .tabs {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px;
-        }
+        .tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 20px; }
         .tab-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 12px 25px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            font-family: 'Prompt', sans-serif;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid white;
+            padding: 12px 25px; border-radius: 30px; cursor: pointer; font-size: 16px;
+            font-family: 'Prompt', sans-serif; font-weight: 600; transition: 0.3s;
         }
         .tab-btn:hover { background: rgba(255, 255, 255, 0.4); }
-        .tab-btn.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-        /* กล่องเนื้อหา */
-        .container {
-            max-width: 900px;
-            margin: 0 auto 40px;
-            padding: 0 20px;
-        }
+        .container { max-width: 900px; margin: 0 auto 40px; padding: 0 20px; }
         .tab-content {
-            background: var(--glass-bg);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: none; /* ซ่อนไว้ก่อน */
-            animation: fadeIn 0.5s ease;
+            background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; animation: fadeIn 0.4s ease;
         }
         .tab-content.active { display: block; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* UI ทั่วไป */
         input[type="text"], input[type="file"] {
             width: 100%; padding: 12px; margin: 10px 0 20px;
-            border: 2px solid #ddd; border-radius: 10px;
-            font-size: 16px; font-family: 'Prompt', sans-serif; box-sizing: border-box;
+            border: 2px solid #ddd; border-radius: 10px; font-size: 16px; font-family: 'Prompt', sans-serif; box-sizing: border-box;
         }
         .action-btn {
-            background: var(--bg-gradient); color: white; border: none;
-            padding: 15px 30px; border-radius: 10px; font-size: 18px;
-            cursor: pointer; font-weight: bold; font-family: 'Prompt', sans-serif;
-            width: 100%; box-shadow: 0 4px 15px rgba(255,65,108,0.3); transition: 0.3s;
+            background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%); color: white; border: none;
+            padding: 15px 30px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold;
+            font-family: 'Prompt', sans-serif; width: 100%; transition: 0.3s;
         }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,65,108,0.5); }
         .action-btn.print-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
 
-        /* สร้าง QR แบบ Excel */
-        .branch-section { margin-top: 30px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .branch-title { border-bottom: 2px solid var(--primary); padding-bottom: 10px; color: var(--primary); }
+        /* สไตล์สำหรับกล้องและเครื่องยิง */
+        #reader { width: 100%; max-width: 450px; margin: 0 auto 20px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border:none;}
+        .scanner-box { background: #f0f4f8; padding: 20px; border-radius: 15px; text-align: center; border: 2px dashed var(--primary); }
+        #hardwareInput { 
+            font-size: 18px; text-align: center; font-weight: bold; padding: 15px; 
+            border: 2px solid #8E2DE2; background: white; color: #333; outline: none; margin-bottom: 0;
+        }
+        #hardwareInput:focus { border-color: #00C851; box-shadow: 0 0 10px rgba(0,200,81,0.3); }
+        #result { margin-top: 20px; font-size: 22px; font-weight: bold; padding: 20px; border-radius: 10px; background: #eee; text-align: center; }
+
+        .branch-section { margin-top: 30px; padding: 20px; background: white; border-radius: 15px; }
         .qr-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; justify-content: center; }
         .qr-card { padding: 15px; border: 1px dashed #ccc; border-radius: 10px; text-align: center; width: 160px; background: white; }
         .info-text { margin-top: 10px; font-size: 13px; text-align: left; line-height: 1.4; }
-        
-        /* สแกนเนอร์ */
-        #reader { border-radius: 15px; overflow: hidden; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        #result { margin-top: 20px; font-size: 20px; font-weight: bold; padding: 15px; border-radius: 10px; background: #eee; text-align: center; }
 
-        /* การตั้งค่าสำหรับตอนสั่ง Print */
         @media print {
-            body { background: white; margin: 0; padding: 0; }
+            body { background: white; }
             .header, .tabs, .print-hide { display: none !important; }
             .tab-content { box-shadow: none; padding: 0; background: transparent; }
-            .branch-section { page-break-after: always; box-shadow: none; border: none; padding: 0; }
+            .branch-section { page-break-after: always; padding: 0; }
             .branch-section:last-child { page-break-after: auto; }
             .qr-card { break-inside: avoid; border: 1px solid #ddd; }
         }
@@ -123,112 +81,108 @@
 <body>
 
     <div class="header print-hide">
-        <h1>🎉 VIP Party Connect</h1>
-        <p>ระบบสร้างและสแกนคิวอาร์โค้ดเข้างาน</p>
+        <h1>✨ VIP Party Connect</h1>
+        <p>ระบบต้อนรับและลงทะเบียนเข้างาน</p>
     </div>
 
-    <!-- ปุ่มนำทาง (Tabs) -->
     <div class="tabs print-hide">
-        <button class="tab-btn active" onclick="switchTab('single')">🎟️ สร้าง QR (รายบุคคล)</button>
-        <button class="tab-btn" onclick="switchTab('bulk')">📊 สร้าง QR (จาก Excel)</button>
-        <button class="tab-btn" onclick="switchTab('scanner')">📸 สแกนเข้างาน (จนท.)</button>
+        <button class="tab-btn active" onclick="switchTab('single', this)">🎟️ สร้าง QR (รายบุคคล)</button>
+        <button class="tab-btn" onclick="switchTab('bulk', this)">📊 สร้าง QR (จาก Excel)</button>
+        <button class="tab-btn" onclick="switchTab('scanner', this)">📸 จุดสแกนเข้างาน</button>
     </div>
 
     <div class="container">
         
-        <!-- แท็บ 1: สร้าง QR ทีละคน -->
+        <!-- แท็บ 1: สร้าง QR -->
         <div id="tab-single" class="tab-content active">
-            <h2 style="color: var(--primary); text-align: center;">สร้าง QR Code ผู้ร่วมงาน</h2>
-            <label>รหัสพนักงาน:</label>
-            <input type="text" id="s_empId" placeholder="เช่น EMP001">
-            <label>ชื่อ-นามสกุล:</label>
-            <input type="text" id="s_empName" placeholder="เช่น สมชาย ใจดี">
-            <label>สาขา:</label>
-            <input type="text" id="s_empBranch" placeholder="เช่น สำนักงานใหญ่">
-            
+            <h2 style="color: var(--primary); text-align: center;">สร้าง QR Code พนักงาน</h2>
+            <input type="text" id="s_empId" placeholder="รหัสพนักงาน (เช่น EMP01)">
+            <input type="text" id="s_empName" placeholder="ชื่อ-นามสกุล">
+            <input type="text" id="s_empBranch" placeholder="สาขา">
             <button class="action-btn" onclick="generateSingleQR()">✨ สร้างคิวอาร์โค้ด</button>
-
-            <div id="single-qr-output" style="margin-top: 30px; display: flex; flex-direction: column; align-items: center; display:none;">
+            <div id="single-qr-output" style="margin-top: 30px; display: flex; justify-content: center; display:none;">
                 <div class="qr-card" style="width: 250px;">
                     <div id="single-qrcode" style="display: flex; justify-content: center;"></div>
-                    <div class="info-text" id="single-info" style="font-size:15px; margin-top:15px;"></div>
+                    <div class="info-text" id="single-info" style="font-size:15px; margin-top:15px; text-align:center;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- แท็บ 2: สร้าง QR จาก Excel -->
+        <!-- แท็บ 2: Excel -->
         <div id="tab-bulk" class="tab-content">
             <div class="print-hide">
-                <h2 style="color: var(--primary); text-align: center;">อัปโหลดรายชื่อจาก Excel</h2>
-                <p style="text-align: center; color: #555;"><b>คอลัมน์ A:</b> รหัส | <b>คอลัมน์ B:</b> ชื่อ | <b>คอลัมน์ C:</b> สาขา</p>
+                <h2 style="color: var(--primary); text-align: center;">พิมพ์ QR Code จาก Excel</h2>
                 <input type="file" id="excelFile" accept=".xlsx, .xls">
-                <button class="action-btn print-btn" onclick="window.print()">🖨️ สั่งปริ้น QR Code แยกสาขา</button>
+                <button class="action-btn print-btn" onclick="window.print()">🖨️ สั่งปริ้นแยกสาขา</button>
             </div>
-            
-            <div id="qrContainer"></div> <!-- ที่สำหรับแสดงคิวอาร์โค้ดจาก Excel -->
+            <div id="qrContainer"></div>
         </div>
 
-        <!-- แท็บ 3: ระบบสแกนเนอร์ (เจ้าหน้าที่) -->
+        <!-- แท็บ 3: จุดสแกน (กล้อง + เครื่องยิง) -->
         <div id="tab-scanner" class="tab-content">
-            <h2 style="color: var(--primary); text-align: center;">จุดสแกนสำหรับเจ้าหน้าที่</h2>
+            <h2 style="color: var(--primary); text-align: center;">จุดสแกนรับแขกหน้างาน 📸 / 🔫</h2>
+            
             <div id="reader"></div>
-            <div id="result">รอการสแกน...</div>
+
+            <div class="scanner-box">
+                <p style="color: #555; margin-top: 0;">หรือเสียบเครื่องยิงคิวอาร์โค้ด แล้วยิงลงในช่องนี้</p>
+                <input type="text" id="hardwareInput" placeholder="[ สแกนคิวอาร์โค้ดที่นี่ ]" autocomplete="off">
+            </div>
+
+            <div id="result">🟢 ระบบพร้อมสแกน...</div>
         </div>
 
     </div>
 
     <script>
-        // -----------------------------------------
-        // 1. ระบบควบคุม Tabs
-        // -----------------------------------------
-        let scannerInitialized = false;
+        // 🛑 อย่าลืมเปลี่ยน URL ตรงนี้
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbxwf4GF2ebnkN_qg6T8C3pfF9k0PTqUDLFAHWywGHhRm1OQffUMtHIEsKBu0Qci9yv_Zg/exec"; 
+        
+        let cameraInitialized = false;
 
-        function switchTab(tabId) {
-            // ระบบรหัสผ่านสำหรับเจ้าหน้าที่
-            if(tabId === 'scanner') {
-                const pass = prompt("ระบบสำหรับเจ้าหน้าที่: กรุณาใส่รหัสผ่าน (9999)");
-                if(pass !== "9999") {
+        // 1. ระบบเปลี่ยนแท็บ และ รหัสผ่าน
+        function switchTab(tabId, btnElement) {
+            
+            if (tabId === 'scanner') {
+                const pass = prompt("ระบบสำหรับเจ้าหน้าที่: กรุณาใส่รหัสผ่าน");
+                if (pass !== "9999") {
                     alert("รหัสผ่านไม่ถูกต้อง!");
-                    return;
+                    return; 
                 }
-                if(!scannerInitialized) initScanner(); // เปิดกล้องเฉพาะตอนเข้าแท็บนี้
+                
+                if (!cameraInitialized) {
+                    initCameraScanner();
+                    cameraInitialized = true;
+                }
             }
 
-            // ซ่อนทุกหน้า และเอาคลาส active ออกจากปุ่ม
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-
-            // แสดงหน้าที่เลือก
-            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             
-            // ทำให้ปุ่มที่กดเปลี่ยนสไตล์
-            event.currentTarget.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+            btnElement.classList.add('active');
+
+            if(tabId === 'scanner') {
+                setTimeout(() => document.getElementById('hardwareInput').focus(), 100);
+            }
         }
 
-        // -----------------------------------------
-        // 2. ระบบสร้าง QR รายบุคคล
-        // -----------------------------------------
+        // 2. สร้าง QR (เดี่ยว)
         function generateSingleQR() {
             const id = document.getElementById("s_empId").value || "-";
             const name = document.getElementById("s_empName").value;
             const branch = document.getElementById("s_empBranch").value || "-";
-
             if(!name) { alert("กรุณาใส่ชื่อพนักงาน"); return; }
 
             const qrContainer = document.getElementById("single-qrcode");
             qrContainer.innerHTML = ""; 
+            new QRCode(qrContainer, { text: `VIPPARTY|${id}|${name}|${branch}`, width: 200, height: 200 });
 
-            const secretData = `VIPPARTY|${id}|${name}|${branch}`;
-
-            new QRCode(qrContainer, { text: secretData, width: 200, height: 200 });
-
-            document.getElementById("single-info").innerHTML = `<b>รหัส:</b> ${id}<br><b>ชื่อ:</b> ${name}<br><b>สาขา:</b> ${branch}`;
+            document.getElementById("single-info").innerHTML = `<b>${id}</b><br>${name}<br>${branch}`;
             document.getElementById("single-qr-output").style.display = "flex";
         }
 
-        // -----------------------------------------
-        // 3. ระบบสร้าง QR จาก Excel
-        // -----------------------------------------
+        // 3. สร้าง QR (Excel) - แก้ไขบั๊กการสร้างข้อมูลทับซ้อนเรียบร้อยแล้ว
         document.getElementById('excelFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -241,11 +195,10 @@
                 
                 const container = document.getElementById("qrContainer");
                 container.innerHTML = ""; 
-
                 const groupedByBranch = {};
                 let isFirstRow = true;
 
-                json.forEach(function(row) {
+                json.forEach(row => {
                     if (!row || row.length === 0) return;
                     const empId = row[0] ? row[0].toString().trim() : "-";
                     const empName = row[1] ? row[1].toString().trim() : "-";
@@ -260,97 +213,119 @@
                     }
                 });
 
-                for (const branchName in groupedByBranch) {
-                    const branchSection = document.createElement("div");
-                    branchSection.className = "branch-section";
-                    branchSection.innerHTML = `<h2 class="branch-title">📍 สาขา: ${branchName}</h2>`;
+                for (const branch in groupedByBranch) {
+                    const sec = document.createElement("div"); sec.className = "branch-section";
+                    sec.innerHTML = `<h3 style="border-bottom: 2px solid var(--primary); color:var(--primary);">📍 สาขา: ${branch}</h3>`;
+                    const grid = document.createElement("div"); grid.className = "qr-grid";
 
-                    const grid = document.createElement("div");
-                    grid.className = "qr-grid";
-
-                    groupedByBranch[branchName].forEach(function(emp) {
-                        const card = document.createElement("div");
+                    groupedByBranch[branch].forEach(emp => {
+                        const card = document.createElement("div"); 
                         card.className = "qr-card";
                         
-                        const qrDiv = document.createElement("div");
-                        qrDiv.style.display = "flex"; qrDiv.style.justifyContent = "center";
+                        const qrDiv = document.createElement("div"); 
+                        qrDiv.style.display = "flex"; 
+                        qrDiv.style.justifyContent = "center";
                         card.appendChild(qrDiv);
                         
                         const infoDiv = document.createElement("div");
                         infoDiv.className = "info-text";
-                        infoDiv.innerHTML = `<b>รหัส:</b> ${emp.id}<br><b>ชื่อ:</b> ${emp.name}<br><b>สาขา:</b> ${emp.branch}`;
+                        infoDiv.innerHTML = `<b>${emp.id}</b><br>${emp.name}<br>${emp.branch}`;
                         card.appendChild(infoDiv);
+                        
                         grid.appendChild(card);
-
+                        
                         new QRCode(qrDiv, { text: `VIPPARTY|${emp.id}|${emp.name}|${emp.branch}`, width: 120, height: 120 });
                     });
-
-                    branchSection.appendChild(grid);
-                    container.appendChild(branchSection);
+                    sec.appendChild(grid); container.appendChild(sec);
                 }
             };
             reader.readAsArrayBuffer(file);
         });
 
-        // -----------------------------------------
-        // 4. ระบบ Scanner สแกนเข้างาน
-        // -----------------------------------------
-        function initScanner() {
-            scannerInitialized = true;
-            let isScanning = false; 
+        // 4. ระบบการประมวลผลการสแกนแบบรวมศูนย์
+        let isProcessing = false;
+
+        function processQRCode(decodedText) {
+            if (isProcessing) return; 
+            if (!decodedText) return;
+
+            const resultDiv = document.getElementById('result');
+
+            if (!decodedText.startsWith("VIPPARTY|")) {
+                resultDiv.innerHTML = "❌ ข้อมูลไม่ถูกต้อง (ไม่ใช่ QR ของงานนี้)";
+                resultDiv.style.backgroundColor = "#ff4d4d"; resultDiv.style.color = "white";
+                isProcessing = true;
+                setTimeout(() => { isProcessing = false; resetResult(); }, 2000);
+                return;
+            }
+
+            const dataParts = decodedText.split("|");
+            const empId = dataParts[1];
+            const empName = dataParts[2];
+            const empBranch = dataParts[3];
+
+            isProcessing = true;
+            resultDiv.innerHTML = `⏳ กำลังบันทึก: <b>${empName}</b>...`;
+            resultDiv.style.backgroundColor = "#ffc107"; resultDiv.style.color = "black";
             
-            // 🛑 เอา URL จาก Google Apps Script ของคุณมาวางตรงนี้
-            const scriptUrl = "https://script.google.com/macros/s/AKfycbxwf4GF2ebnkN_qg6T8C3pfF9k0PTqUDLFAHWywGHhRm1OQffUMtHIEsKBu0Qci9yv_Zg/exec"; 
+            const fetchUrl = `${scriptUrl}?id=${encodeURIComponent(empId)}&name=${encodeURIComponent(empName)}&branch=${encodeURIComponent(empBranch)}`;
 
-            function onScanSuccess(decodedText) {
-                if (isScanning) return; 
-
-                const resultDiv = document.getElementById('result');
-
-                if (!decodedText.startsWith("VIPPARTY|")) {
-                    resultDiv.innerText = "❌ QR Code ไม่ถูกต้อง (ไม่ใช่ของงานนี้)";
+            fetch(fetchUrl)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === "success") {
+                        resultDiv.innerHTML = `✅ ยินดีต้อนรับ!<br><span style="font-size:28px;">${empName}</span><br><small>${empBranch}</small>`;
+                        resultDiv.style.backgroundColor = "#00C851"; resultDiv.style.color = "white";
+                    }
+                })
+                .catch(err => {
+                    resultDiv.innerHTML = "❌ การเชื่อมต่อล้มเหลว";
                     resultDiv.style.backgroundColor = "#ff4d4d"; resultDiv.style.color = "white";
-                    isScanning = true; setTimeout(() => { isScanning = false; resetResult(); }, 3000);
-                    return;
-                }
+                })
+                .finally(() => {
+                    setTimeout(() => { 
+                        isProcessing = false; 
+                        resetResult(); 
+                        document.getElementById('hardwareInput').focus(); 
+                    }, 2000); 
+                });
+        }
 
-                const dataParts = decodedText.split("|");
-                const empId = dataParts[1];
-                const empName = dataParts[2];
-                const empBranch = dataParts[3];
+        // 4.1 ตรวจจับจากเครื่องยิง
+        document.getElementById('hardwareInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const text = this.value.trim();
+                this.value = ''; 
+                processQRCode(text);
+            }
+        });
 
-                isScanning = true;
-                resultDiv.innerHTML = `⏳ กำลังบันทึกข้อมูล:<br>${empName}`;
-                resultDiv.style.backgroundColor = "#ffc107"; resultDiv.style.color = "black";
+        // 4.2 ตรวจจับจากกล้อง
+        function initCameraScanner() {
+            let html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
                 
-                const fetchUrl = `${scriptUrl}?id=${encodeURIComponent(empId)}&name=${encodeURIComponent(empName)}&branch=${encodeURIComponent(empBranch)}`;
+            html5QrcodeScanner.render(
+                function onScanSuccess(decodedText) {
+                    processQRCode(decodedText);
+                }, 
+                function onScanFailure(error) { /* เงียบไว้ */ }
+            );
+        }
 
-                fetch(fetchUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.status === "success") {
-                            resultDiv.innerHTML = `✅ เข้างานสำเร็จ:<br>${empName} (${empBranch})`;
-                            resultDiv.style.backgroundColor = "#28a745"; resultDiv.style.color = "white";
-                        }
-                    })
-                    .catch(err => {
-                        resultDiv.innerText = "❌ การเชื่อมต่อล้มเหลว";
-                        resultDiv.style.backgroundColor = "#ff4d4d"; resultDiv.style.color = "white";
-                    })
-                    .finally(() => {
-                        setTimeout(() => { isScanning = false; resetResult(); }, 3000); 
-                    });
+        // ดึงโฟกัสกลับมาที่ช่องเครื่องยิงเสมอ
+        document.addEventListener('click', function() {
+            if (document.getElementById('tab-scanner').classList.contains('active')) {
+                document.getElementById('hardwareInput').focus();
             }
+        });
 
-            function resetResult() {
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerText = "รอการสแกน...";
-                resultDiv.style.backgroundColor = "#eee";
-                resultDiv.style.color = "#333";
-            }
-
-            let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-            html5QrcodeScanner.render(onScanSuccess, function(){});
+        function resetResult() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerText = "🟢 ระบบพร้อมสแกน...";
+            resultDiv.style.backgroundColor = "#eee";
+            resultDiv.style.color = "#333";
         }
     </script>
 </body>
