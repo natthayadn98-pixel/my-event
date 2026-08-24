@@ -6,7 +6,6 @@
     <title>Party Connect - ระบบต้อนรับหน้างาน</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <!-- โหลดไลบรารีที่จำเป็น -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -42,7 +41,7 @@
         
         .branch-section { margin-top: 30px; padding: 20px; background: white; border-radius: 15px; }
         .qr-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; justify-content: center; }
-        .qr-card { padding: 15px; border: 1px dashed #ccc; border-radius: 10px; text-align: center; width: 160px; background: white; }
+        .qr-card { padding: 15px; border: 1px dashed #ccc; border-radius: 10px; text-align: center; width: 190px; background: white; } /* ขยายการ์ดให้ใหญ่ขึ้น */
         .info-text { margin-top: 10px; font-size: 13px; text-align: left; line-height: 1.4; }
         
         .stat-grid { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
@@ -53,6 +52,7 @@
         .text-green { color: #00C851; }
         .text-red { color: #ff4444; }
         
+        /* List Styles */
         .recent-list { list-style: none; padding: 0; margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; max-height: 350px; overflow-y: auto; }
         .recent-list li { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #00C851; }
         .edit-btn { background: #eee; border: none; border-radius: 5px; cursor: pointer; padding: 2px 8px; font-size: 12px; font-family: 'Prompt'; transition: 0.2s;}
@@ -70,7 +70,7 @@
 
     <!-- แถบเมนู -->
     <div class="tabs print-hide">
-        <button class="tab-btn active" onclick="switchTab('single', this)">🎟️ สร้าง QR (เดี่ยว)</button>
+        <button class="tab-btn active" onclick="switchTab('single', this)">🎟️ สร้าง QR</button>
         <button class="tab-btn" onclick="switchTab('bulk', this)">📊 สร้างจาก Excel</button>
         <button class="tab-btn" onclick="switchTab('search', this)">🔍 ค้นหา (ไม่มี QR)</button>
         <button class="tab-btn" onclick="switchTab('scanner', this)">📸 จุดสแกนเข้างาน</button>
@@ -87,9 +87,8 @@
             <input type="text" id="s_empBranch" placeholder="สาขา">
             <button class="action-btn" onclick="generateSingleQR()">✨ สร้างคิวอาร์โค้ด</button>
             <div id="single-qr-output" style="margin-top: 30px; display: flex; justify-content: center; display:none;">
-                <div class="qr-card" style="width: 250px;">
-                    <!-- ปรับโค้ดรับ QR + โลโก้ตรงนี้ -->
-                    <div id="single-qrcode" style="position: relative; width: 200px; height: 200px; margin: 0 auto;"></div>
+                <div class="qr-card" style="width: 280px;">
+                    <div id="single-qrcode" style="position: relative; width: 250px; height: 250px; margin: 0 auto;"></div>
                     <div class="info-text" id="single-info" style="font-size:15px; margin-top:15px; text-align:center;"></div>
                 </div>
             </div>
@@ -106,7 +105,7 @@
             <div id="qrContainer"></div>
         </div>
 
-        <!-- แท็บ 3: ค้นหาและเช็คอินมือ -->
+        <!-- แท็บ 3: ค้นหาและเช็คอินมือ (Manual Check-in) -->
         <div id="tab-search" class="tab-content">
             <h2 style="color: var(--primary); text-align: center;">ค้นหารายชื่อผู้เข้างาน</h2>
             <p style="text-align: center; color: #666; margin-top: -10px;">กรณีลืมคิวอาร์โค้ด ให้พิมพ์ชื่อ หรือ รหัสพนักงานที่นี่</p>
@@ -186,7 +185,6 @@
             try { return decodeURIComponent(escape(atob(base64Text))); } catch (e) { return null; }
         }
 
-        // --- ควบคุมเมนู ---
         function switchTab(tabId, btnElement) {
             if (tabId === 'scanner' || tabId === 'search') {
                 const pass = prompt("ระบบสำหรับเจ้าหน้าที่: กรุณาใส่รหัสผ่าน");
@@ -260,7 +258,7 @@
         }
 
         // ==========================================
-        // 🌟 1. สร้าง QR Code (เดี่ยว) พร้อมใส่โลโก้ตรงกลาง
+        // 🌟 1. สร้าง QR เดี่ยว (ปรับ Error Correction Level H)
         // ==========================================
         function generateSingleQR() {
             const id = document.getElementById("s_empId").value || "-";
@@ -273,26 +271,26 @@
             
             const encodedData = encodeThaiToBase64(id, name, branch);
             
-            // 🟢 ปรับ CorrectLevel.H ป้องกันกล้องสแกนไม่ออกเพราะมีโลโก้บัง
+            // ใช้ CorrectLevel.H ทนทานต่อการบังโลโก้
             new QRCode(qrContainer, { 
                 text: `VIPPARTY|${encodedData}`, 
-                width: 200, 
-                height: 200,
+                width: 250, 
+                height: 250,
                 correctLevel : QRCode.CorrectLevel.H 
             });
 
-            // 🟢 เพิ่มภาพโลโก้ไว้ตรงกลาง
+            // ใส่โลโก้ตรงกลาง
             const logo = document.createElement("img");
-            logo.src = "logo CLT (1)-01.png"; // ไฟล์โลโก้ที่คุณส่งมา
+            logo.src = "logo CLT (1)-01.png";
             logo.style.position = "absolute";
             logo.style.top = "50%";
             logo.style.left = "50%";
             logo.style.transform = "translate(-50%, -50%)";
-            logo.style.width = "45px"; 
-            logo.style.height = "45px";
-            logo.style.backgroundColor = "white"; // พื้นหลังขาวกันกลืนกับคิวอาร์โค้ด
+            logo.style.width = "50px"; 
+            logo.style.height = "50px";
+            logo.style.backgroundColor = "white"; 
             logo.style.padding = "4px";
-            logo.style.borderRadius = "50%"; // วงกลมให้เข้ากับโลโก้
+            logo.style.borderRadius = "50%"; 
             qrContainer.appendChild(logo);
 
             document.getElementById("single-info").innerHTML = `<b>${id}</b><br>${name}<br>${branch}`;
@@ -300,7 +298,7 @@
         }
 
         // ==========================================
-        // 🌟 2. ระบบจัดการ Excel + สร้าง QR หลายคนพร้อมใส่โลโก้
+        // 🌟 2. ระบบจัดการ Excel (ปรับ Error Correction Level H)
         // ==========================================
         function renderExcelData(json) {
             const container = document.getElementById("qrContainer");
@@ -331,11 +329,10 @@
                 groupedByBranch[branch].forEach(emp => {
                     const card = document.createElement("div"); card.className = "qr-card";
                     
-                    // ปรับแต่งกล่องที่จะวาง QR Code เพื่อใส่โลโก้ทับได้
                     const qrDiv = document.createElement("div"); 
                     qrDiv.style.position = "relative";
-                    qrDiv.style.width = "120px";
-                    qrDiv.style.height = "120px";
+                    qrDiv.style.width = "150px"; // ขยายขนาดจาก 120 เป็น 150px
+                    qrDiv.style.height = "150px";
                     qrDiv.style.margin = "0 auto";
 
                     const infoDiv = document.createElement("div"); infoDiv.className = "info-text";
@@ -347,23 +344,23 @@
                     
                     const encodedData = encodeThaiToBase64(emp.id, emp.name, emp.branch);
                     
-                    // 🟢 สร้าง QR Code แบบปรับ Error Correction = High
+                    // ใช้ CorrectLevel.H ทนทานต่อการบังโลโก้
                     new QRCode(qrDiv, { 
                         text: `VIPPARTY|${encodedData}`, 
-                        width: 120, 
-                        height: 120,
+                        width: 150, 
+                        height: 150,
                         correctLevel : QRCode.CorrectLevel.H 
                     });
 
-                    // 🟢 นำโลโก้มาวางตรงกลาง QR Code
+                    // ใส่โลโก้ตรงกลาง
                     const logo = document.createElement("img");
-                    logo.src = "logo CLT (1)-01.png"; // ไฟล์โลโก้
+                    logo.src = "logo CLT (1)-01.png";
                     logo.style.position = "absolute";
                     logo.style.top = "50%";
                     logo.style.left = "50%";
                     logo.style.transform = "translate(-50%, -50%)";
-                    logo.style.width = "28px"; // ขนาดพอดีสำหรับ QR ไซส์ 120px
-                    logo.style.height = "28px";
+                    logo.style.width = "30px"; 
+                    logo.style.height = "30px";
                     logo.style.backgroundColor = "white"; 
                     logo.style.padding = "2px";
                     logo.style.borderRadius = "50%"; 
@@ -410,7 +407,7 @@
         }
 
         // ==========================================
-        // 🌟 ระบบค้นหาชื่อ และ เช็คอินมือ
+        // 🌟 ค้นหาชื่อ และ เช็คอินมือ (Manual Check-in)
         // ==========================================
         function searchAttendee() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -619,7 +616,7 @@
 
         function initCameraScanner() {
             const html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: { width: 250, height: 250 } },
                 function(decodedText) { processQRCode(decodedText); }, function(error) { }
             ).catch(err => {
                 showError("❌ ไม่สามารถเปิดกล้องได้");
